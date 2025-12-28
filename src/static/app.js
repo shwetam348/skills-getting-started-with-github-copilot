@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Clear loading message
       activitiesList.innerHTML = "";
+      // Reset activity select to avoid duplicate options on refresh
+      activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
 
       // helper: extract initials from an email/name
       function getInitials(text) {
@@ -62,8 +64,35 @@ document.addEventListener("DOMContentLoaded", () => {
             nameSpan.className = "participant-name";
             nameSpan.textContent = p;
 
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "participant-delete";
+            deleteBtn.title = "Unregister participant";
+            deleteBtn.innerHTML = "&#x2716;";
+
+            // Unregister handler
+            deleteBtn.addEventListener("click", async (evt) => {
+              evt.stopPropagation();
+              try {
+                const res = await fetch(
+                  `/activities/${encodeURIComponent(name)}/participants?email=${encodeURIComponent(p)}`,
+                  { method: "DELETE" }
+                );
+
+                const result = await res.json().catch(() => ({}));
+                if (res.ok) {
+                  // refresh full activities view to keep counts in sync
+                  fetchActivities();
+                } else {
+                  console.error("Failed to unregister:", result.detail || result.message || res.statusText);
+                }
+              } catch (err) {
+                console.error("Error unregistering participant:", err);
+              }
+            });
+
             li.appendChild(avatar);
             li.appendChild(nameSpan);
+            li.appendChild(deleteBtn);
             participantsList.appendChild(li);
           });
         }
@@ -102,6 +131,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (response.ok) {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
+        // refresh activities to show new participant without manual reload
+        fetchActivities();
         signupForm.reset();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";

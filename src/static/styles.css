@@ -173,6 +173,27 @@ footer {
   border: 1px solid #eef2f6;
 }
 
+.participant-delete {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: #c62828;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+}
+
+.participant-delete:hover {
+  background: rgba(198, 40, 40, 0.08);
+}
+
+/* Ensure no bullets and consistent spacing on older browsers */
+.participants-list {
+  list-style: none;
+  padding-left: 0;
+}
+
 .participant-avatar {
   display: inline-flex;
   align-items: center;
